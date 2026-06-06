@@ -46,6 +46,7 @@
 					{#if persistedToDb}Sie wurde server-seitig in der Datenbank gespeichert.{:else}Sie wurde lokal in deinem Browser gespeichert.{/if}
 					Den Status findest du jederzeit unter „Meine Bewerbungen".
 				</p>
+				<div class="alert alert-light border small mb-4">📎 Dein <a href="/profile">Profil</a> (CV, Erfahrung &amp; Bewertungen) wird dem Arbeitgeber mit deiner Bewerbung angezeigt.</div>
 				<div class="d-flex gap-2 justify-content-center flex-wrap">
 					<a href="/my-applications" class="btn btn-flexmatch">Meine Bewerbungen</a>
 					<a href="/jobs"            class="btn btn-outline-secondary">Weitere Jobs</a>

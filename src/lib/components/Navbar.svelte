@@ -36,6 +36,9 @@
 					<li class="nav-item">
 						<a class="nav-link rounded" class:active={$page.url.pathname === '/my-applications'} href="/my-applications">Meine Bewerbungen</a>
 					</li>
+					<li class="nav-item">
+						<a class="nav-link rounded" class:active={$page.url.pathname === '/profile'} href="/profile">Profil</a>
+					</li>
 					<li class="nav-item d-flex align-items-center gap-2 ms-lg-3 mt-2 mt-lg-0">
 						<span class="text-white small">👤 {user.name}</span>
 						<a class="btn btn-light btn-sm fw-semibold" href="/logout">Abmelden</a>

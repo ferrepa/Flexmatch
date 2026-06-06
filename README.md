@@ -6,7 +6,8 @@
 |---|---|
 | **Live-Demo** | https://flexmatch-zhaw.netlify.app |
 | **Repository** | https://github.com/ferrepa/Flexmatch |
-| **Mockup** | [`docs/mockup/flexmatch-mockup-overview.png`](docs/mockup/flexmatch-mockup-overview.png) |
+| **Figma-Prototyp (interaktiv)** | https://www.figma.com/design/ZlzqO8R94gHmY8DCFV4zNj – im „Present"-Modus klickbar (Login → Jobs → Detail → Bewerbung → Profil) |
+| **Mockup (PNG)** | [`docs/mockup/flexmatch-mockup-overview.png`](docs/mockup/flexmatch-mockup-overview.png) |
 | **Autor** | Patrick Ferreira · ferrepa1@students.zhaw.ch |
 | **Modul** | w.BA.XX.3Pt-WIN.XX – Prototyping mit Webtechnologien (FS26) |
 | **Video** | Kommentierter Walkthrough (5–6 Min) – als Datei auf Moodle abgegeben |
@@ -61,6 +62,7 @@ Flexmatch ist ein funktionsfähiger Web-Prototyp, der die drei zentralen Use Cas
   4. **Bewerbung** (`/jobs/[id]/apply`) – Formular mit Name, E-Mail, Telefon, Nachricht; server-seitige Validierung und Persistenz; Status «In Prüfung»
   5. **Merkliste** (`/favorites`) – interessante Jobs merken und vergleichen
   6. **Meine Bewerbungen** (`/my-applications`) – Übersicht aller Bewerbungen mit Status, Lösch-Option und Mini-Dashboard
+  7. **Profil** (`/profile`) – Lebenslauf hochladen, „Über mich", Erfahrung/Einsätze, Ausbildung, Sprachen und Bewertungen; wird Arbeitgebern bei einer Bewerbung angezeigt
 - **Annahmen:** Nutzerinnen und Nutzer erstellen vor der Jobsuche ein Konto (wie bei vergleichbaren Plattformen üblich); ein **Demo-Login** senkt die Hürde fürs Ausprobieren. Der Stundenlohn und das Pensum sind die wichtigsten Entscheidungskriterien und müssen sofort sichtbar sein.
 - **Abgrenzung:** Die Authentifizierung ist **prototyp-tauglich** umgesetzt (Registrierung/Login, Cookie-Session, Passwörter als SHA-256-Hash), jedoch **ohne** E-Mail-Verifikation, Passwort-Reset oder 2FA. Kein Arbeitgeber-Dashboard, keine echte E-Mail-Versendung, keine Bezahl-/Vertragsfunktion. Bewerbungen erhalten den Status «In Prüfung»; eine echte Zu-/Absage durch den Arbeitgeber erfolgt nicht (kein Arbeitgeber-Backend, keine Benachrichtigungen).
 
@@ -439,8 +441,4 @@ Die Durchführung folgte den Phasen des Design-Sprint-Vorgehens (Understand → 
   - **Frontend:** Status-Badge + Statistik in `src/routes/my-applications/+page.svelte`; Status-Hinweis auf der Erfolgsseite `src/routes/jobs/[id]/apply/+page.svelte`
   - **Daten:** Statusfeld in `src/lib/stores/applications.js`
 - **Referenz:** „Meine Bewerbungen", Bewerbungs-Bestätigung
-- **Aus Evaluation abgeleitet?:** Teilweise – adressiert die Transparenz/Verbindlichkeit aus Issue 3.5.3.
-
-### 4.10 Authentifizierung & geschützte Bereiche
-- **Beschreibung & Nutzen:** Registrierung und Login gaten die App – Jobs, Bewerbungen und Merkliste sind erst nach Anmeldung sichtbar (Leitidee bestehender Schweizer Vermittlungsplattformen). Ein **Demo-Login** ermöglicht einfaches Ausprobieren und Demonstrieren.
--
+- **Aus Evaluation abgeleitet?:** Teilweise – adressiert die Tran
