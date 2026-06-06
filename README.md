@@ -97,13 +97,13 @@ Die Durchführung folgte den Phasen des Design-Sprint-Vorgehens (Understand → 
 
 - **Skizzen:**
 
-  ![Skizze 1 – Onboarding/Anmeldung](docs/sketches/skizze-1-onboarding.png)
+  ![Skizze 1 – Onboarding/Anmeldung](docs/sketches/skizze-1-onboarding.jpeg)
   *Onboarding: **Variante A – getrennte Login-/Registrierungsseiten** (gewählt) vs. Variante B – kombiniert mit Tabs. Pro A: einfach, fokussiert, Demo-Login prominent; Contra A: ein Extraklick zur Registrierung. → A umgesetzt (`/login`, `/register`).*
 
-  ![Skizze 2 – Jobliste](docs/sketches/skizze-2-jobliste.png)
+  ![Skizze 2 – Jobliste](docs/sketches/skizze-2-jobliste.jpeg)
   *Jobliste: **Variante A – Karten-Grid** (gewählt) vs. Variante B – Listen-/Tabellenansicht. Pro A: mobilfreundlich, Lohn/Kategorie sofort sichtbar; Contra B: wirkt „Excel-artig", schwach auf Mobile. → A umgesetzt.*
 
-  ![Skizze 3 – Job-Detail](docs/sketches/skizze-3-detail.png)
+  ![Skizze 3 – Job-Detail](docs/sketches/skizze-3-detail.jpeg)
   *Job-Detail: **Variante A – Sticky-Sidebar + Ähnliche Jobs** (gewählt) vs. Variante B – Bewerben inline am Seitenende. Pro A: Bewerben-Button immer sichtbar, Empfehlungen fördern Entdeckung; Contra A: schmalerer Inhalt auf Mobile. → A umgesetzt.*
 
 ### 3.3 Decide
@@ -114,13 +114,16 @@ Die Durchführung folgte den Phasen des Design-Sprint-Vorgehens (Understand → 
   - **Informationsdichte** – Lohn und Kategorie sind pro Karte sofort erkennbar (zentrale Erkenntnis aus 3.1).
 
 - **End-to-End-Ablauf (Happy Path):**
-  1. Nutzer öffnet die Startseite → klickt «Jobs suchen»
-  2. Sucht «Bar», wählt Kategorie «Gastronomie» und sortiert nach «Stundenlohn (hoch → tief)» → passende Jobs erscheinen sofort
+  1. Nutzer **registriert sich oder meldet sich an** (Demo-Login möglich) → erst danach werden die Jobs sichtbar
+  2. Öffnet die Jobliste, sucht «Bar», wählt Kategorie «Gastronomie» und sortiert nach «Stundenlohn (hoch → tief)» → passende Jobs erscheinen sofort
   3. Klickt auf «Details & Bewerben» → liest Stellenbeschreibung und Anforderungen
-  4. Klickt «Jetzt bewerben» → füllt das Formular aus → sendet ab
-  5. Sieht die Erfolgsmeldung (inkl. Hinweis auf Speicherung) → navigiert zu «Meine Bewerbungen»
+  4. Klickt «Jetzt bewerben» → füllt das Formular aus → sendet ab → sieht den Status «In Prüfung» (server-seitig gespeichert)
+  5. Vervollständigt sein **Profil** (CV, «Über mich», Erfahrung) → dieses wird dem Arbeitgeber bei einer Bewerbung angezeigt
+  6. Behält den Überblick unter «Meine Bewerbungen» und «Merkliste»
 
-- **Mockup:** Vor der Implementierung wurde ein Referenz-Mockup der gewählten Lösung erstellt, an dem sich die Umsetzung orientiert. Es umfasst die sechs zentralen Screens des End-to-End-Ablaufs:
+- **Scope für diesen Prototyp:** Vollständig umgesetzt sind die Bewerber-Workflows: Registrierung/Login (inkl. Demo-Login), Jobsuche mit Suche/Filter/Sortierung, Job-Detail mit Empfehlungen, Bewerbung mit server-seitiger Speicherung, Bewerber-Profil, Merkliste und Bewerbungs-Übersicht. **Bewusst nicht im Umfang** (Phase 2): ein Arbeitgeber-Dashboard mit Zu-/Absage, echte E-Mail-Benachrichtigungen sowie Bezahl-/Vertragsfunktionen (siehe Abgrenzung in Kap. 2).
+
+- **Mockup:** Vor der Implementierung wurde ein Referenz-Mockup der gewählten Lösung erstellt, an dem sich die Umsetzung orientiert. Es liegt als **interaktiver Figma-Prototyp** vor – im „Present"-Modus klickbar (Login → Jobs → Detail → Bewerbung → Profil): <https://www.figma.com/design/ZlzqO8R94gHmY8DCFV4zNj>. Zusätzlich als Screenshot-Übersicht der sechs zentralen Screens:
 
   ![Flexmatch UI-Mockup](docs/mockup/flexmatch-mockup-overview.png)
   *Referenz-Mockup (Phase „Decide"): Startseite, Jobliste mit Suche/Filter, Job-Detail, Bewerbungsformular, Bestätigung und „Meine Bewerbungen". Der implementierte Prototyp orientiert sich 1:1 an diesem Mockup.*
@@ -215,6 +218,9 @@ Die Durchführung folgte den Phasen des Design-Sprint-Vorgehens (Understand → 
   - `src/lib/jobs.js` – zentrale Jobdaten sowie die Filterlisten (Kategorien, Orte)
   - `src/lib/server/db.js` – MongoDB-Datenbankschicht (`getAllJobs`, `getJobById`, `createBewerbung`) **mit Fallback** auf statische Daten
   - `src/lib/stores/applications.js` – `localStorage`-Hilfsfunktionen für Bewerbungen
+  - `src/hooks.server.js` – liest die Cookie-Session und stellt `event.locals.user` bereit (Routen-Schutz)
+  - `src/routes/login`, `register`, `logout` – Authentifizierung inkl. Demo-Login; geschützte Seiten leiten ohne Session via `redirect(303, '/login')` um
+  - `src/routes/profile/+page.svelte` + `src/lib/stores/profile.js` – Bewerber-Profil (CV-Upload, „Über mich", Bewertungen)
   - Datenseiten nutzen `+page.server.js` mit `load()`-Funktion (Cheat-Sheet-konform)
   - Das Bewerbungsformular nutzt **SvelteKit Form Actions** (`?/bewerben`) mit server-seitiger Validierung
 
@@ -244,11 +250,17 @@ Die Durchführung folgte den Phasen des Design-Sprint-Vorgehens (Understand → 
       string nachricht
       date   datum
     }
+    USERS {
+      string name
+      string email
+      string passwortHash
+    }
     JOBS ||--o{ BEWERBUNGEN : "Bewerbung auf"
   ```
 
   - Jobs werden server-seitig aus **MongoDB Atlas** geladen (`flexmatchDB.jobs`). Fehlt die Verbindung, greift automatisch ein Fallback auf die statischen Jobdaten aus `src/lib/jobs.js` (siehe Kap. 4.6). Das Feld `date` bezeichnet das Ausschreibungs-/Startdatum und dient der Sortierung „Neueste zuerst".
-  - Bewerbungen werden **server-seitig** in `flexmatchDB.bewerbungen` gespeichert (Form Action → `createBewerbung`) **und** zusätzlich client-seitig im `localStorage` gespiegelt, damit „Meine Bewerbungen" auch ohne Konto sofort verfügbar ist.
+  - Bewerbungen werden **server-seitig** in `flexmatchDB.bewerbungen` gespeichert (Form Action → `createBewerbung`) **und** zusätzlich client-seitig im `localStorage` gespiegelt, damit „Meine Bewerbungen" sofort verfügbar ist.
+  - Registrierte Konten werden in der Collection `users` abgelegt; Passwörter als SHA-256-Hash (`node:crypto`), die Session läuft über ein signiertes Cookie (`src/hooks.server.js`).
   - Seed-Script: `node scripts/seed.js` befüllt die Datenbank mit Beispieldaten.
   - Umgebungsvariable `MONGODB_URI` in `.env` (lokal) bzw. als Netlify Environment Variable (Produktion).
 
@@ -282,7 +294,7 @@ Die Durchführung folgte den Phasen des Design-Sprint-Vorgehens (Understand → 
 
   > **Zielgruppen-Passung:** Beide Testpersonen entsprechen mit Alter, Studierendenstatus und Smartphone-Nutzung der **primären Zielgruppe** (Studierende, die flexible Einsätze suchen). Die Ergebnisse sind damit gut auf die Zielgruppe übertragbar; ergänzend wäre eine spätere Iteration mit Arbeitgeber-Probanden sinnvoll.
 
-  > **Reziprozität:** Im Rahmen desselben Pflichttermins habe ich umgekehrt die Projekte **buildex** (Marko Vukcevic) und **StudyStreak** (Valdrin Dalipi) getestet (siehe Cross-Reference im Anhang).
+  > **Reziprozität:** Flexmatch wurde von **Marko Vukcevic** und **Valdrin Dalipi** getestet. Umgekehrt habe ich im selben Pflichttermin **ausschliesslich das Projekt buildex** von Marko Vukcevic getestet (Valdrins Projekt habe ich nicht getestet) – siehe Cross-Reference im Anhang.
 
 - **Aufgaben/Szenarien:**
 
@@ -311,7 +323,7 @@ Die Durchführung folgte den Phasen des Design-Sprint-Vorgehens (Understand → 
   | T2 – Filtern & Sortieren | ⚠️ mit Umweg | ⚠️ mit Umweg | Filter werden genutzt; beide suchten **zuerst ein Such-Eingabefeld** und eine **Sortier-Option**, die in der getesteten Version noch **nicht vorhanden** waren. |
   | T3 – Detail prüfen | ✅ abgeschlossen | ✅ abgeschlossen | Eckdaten-Kacheln und Anforderungen klar; Sidebar wird gelobt. |
   | T4 – Bewerben | ✅ abgeschlossen | ✅ abgeschlossen | Formular läuft sauber durch; Validierungs-Feedback ist hilfreich. |
-  | T5 – Bewerbung prüfen | ✅ abgeschlossen | ⚠️ mit Umweg | Eintrag wird gefunden; Valdrin war unsicher, **ob die Bewerbung wirklich „echt" gespeichert** wurde (nur lokal). |
+  | T5 – Bewerbung prüfen | ✅ abgeschlossen | ⚠️ mit Umweg | Eintrag wird gefunden; Valdrin war unsicher, **ob die Bewerbung wirklich gespeichert** wurde (nur lokal). |
 
   > ⚠️ = abgeschlossen mit merklichem Umweg/Verzögerung · ❌ = nicht abschliessbar.
 
@@ -322,7 +334,7 @@ Die Durchführung folgte den Phasen des Design-Sprint-Vorgehens (Understand → 
   | ✅ Was hat gut funktioniert | ❌ Was hat gestört |
   |---|---|
   | Karten-Grid übersichtlich, Lohn sofort sichtbar | Keine Volltext-Suche – wollte „Bar" eintippen |
-  | Bewerbung ohne Konto = niedrige Hürde | Keine Sortierung nach Lohn |
+  | Bewerbungsformular klar und schnell durchlaufbar | Keine Sortierung nach Lohn |
   | Mobile-Ansicht sauber | – |
 
   | 💡 Neue Ideen / Anforderungen | ❓ Was war unklar |
@@ -547,11 +559,20 @@ Aufgaben der Testpersonen (Thinking-Aloud):
 5. Finde den Status deiner Bewerbung wieder.
 
 ### 7.3 Cross-Reference (Reziprozität)
-Im selben Pflichttermin (20.05.2026) wurden die Projekte gegenseitig getestet:
-- **buildex** – Marko Vukcevic (vukcema1@students.zhaw.ch)
-- **StudyStreak** – Valdrin Dalipi (dalipval@students.zhaw.ch)
+- **Flexmatch** wurde im Pflichttermin (20.05.2026) getestet von **Marko Vukcevic** (vukcema1@students.zhaw.ch) und **Valdrin Dalipi** (dalipval@students.zhaw.ch).
+- Umgekehrt habe ich **ausschliesslich das Projekt buildex** von Marko Vukcevic getestet – <https://github.com/Marko-Vukcevic/buildex> (dort bin ich in Kap. 3.5 als Testperson aufgeführt). Valdrins Projekt habe ich nicht getestet.
 
 ### 7.4 Quellen & Hilfsmittel
 - Prototyping Cheat Sheet (Kursunterlagen)
 - Offizielle Dokumentation zu SvelteKit, Svelte, Bootstrap und MongoDB
 - Leitidee-Analyse bestehender Schweizer Vermittlungsplattformen (allgemeine Konzepte; kein Code und keine Inhalte übernommen)
+
+### 7.5 Artefakte im Repository
+- **Hand-Skizzen (Sketch-Phase):** `docs/sketches/` – siehe Kap. 3.2
+- **UI-Screenshots der Live-App:** `docs/screenshots/` – siehe Kap. 3.4.1
+- **Mockup-Übersicht:** `docs/mockup/flexmatch-mockup-overview.png` sowie der interaktive Figma-Prototyp (Kap. 3.3)
+- **Issue-Tracker:** Die Befunde aus der Evaluation (Kap. 3.5) wurden als **GitHub-Issues #1–#4** erfasst und nach Umsetzung der jeweiligen Erweiterung geschlossen → <https://github.com/ferrepa/Flexmatch/issues>
+
+### 7.6 Grundlagen
+- **Vorlage:** ZHAW-Vorlage `VORLAGE_README.md` (Moodle, PT FS26) – die Kapitelstruktur dieses Dokuments folgt dieser Vorlage.
+- **Modul-Aufgabenstellung:** „PT Projekt – Anforderungen und Bewertung" (Moodle).
