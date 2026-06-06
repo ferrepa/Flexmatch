@@ -441,4 +441,110 @@ Die Durchführung folgte den Phasen des Design-Sprint-Vorgehens (Understand → 
   - **Frontend:** Status-Badge + Statistik in `src/routes/my-applications/+page.svelte`; Status-Hinweis auf der Erfolgsseite `src/routes/jobs/[id]/apply/+page.svelte`
   - **Daten:** Statusfeld in `src/lib/stores/applications.js`
 - **Referenz:** „Meine Bewerbungen", Bewerbungs-Bestätigung
-- **Aus Evaluation abgeleitet?:** Teilweise – adressiert die Tran
+- **Aus Evaluation abgeleitet?:** Teilweise – adressiert die Transparenz/Verbindlichkeit aus den Issues 3.5.3 und 3.5.4.
+
+### 4.10 Authentifizierung & geschützte Bereiche
+- **Beschreibung & Nutzen:** Registrierung und Login gaten die App – Jobs, Detailseiten, Bewerbung, Merkliste und Profil sind erst **nach Anmeldung** sichtbar (Leitidee bestehender Schweizer Vermittlungsplattformen). Ein **Demo-Login** senkt die Hürde zum Ausprobieren und für die Video-Demonstration.
+- **Wo umgesetzt:**
+  - **Backend:** `createUser()`/`verifyUser()` in `src/lib/server/db.js` (Passwörter als SHA-256-Hash via `node:crypto`); Cookie-Session in `src/hooks.server.js` → `event.locals.user`; Form-Actions in `src/routes/login/+page.server.js` und `src/routes/register/+page.server.js`; Routen-Schutz via `redirect(303, '/login')` in den `+page.server.js` der geschützten Seiten
+  - **Frontend:** `src/routes/login`, `src/routes/register`, bedingte Navigation in `src/lib/components/Navbar.svelte`
+  - **Demo-Login:** `demo@flexmatch.ch` / `demo1234` (funktioniert auch ohne DB-Verbindung)
+- **Referenz:** Screenshots „Login" / „Registrierung" Kap. 3.4.1; Information Architecture Kap. 3.4.2
+- **Aus Evaluation abgeleitet?:** Nein – Ergebnis der Leitidee-Analyse (Konto vor Jobsuche, wie bei vergleichbaren Plattformen üblich).
+
+### 4.11 Bewerber-Profil
+- **Beschreibung & Nutzen:** Eigene Profilseite mit Lebenslauf-Upload, „Über mich", Erfahrung/Einsätzen, Ausbildung, Sprachen und Kundenbewertungen (Sterne). Das Profil wird Arbeitgebern bei einer Bewerbung angezeigt – das erhöht Vertrauen und Aussagekraft der Bewerbung (Leitidee-Analyse vergleichbarer Plattformen).
+- **Wo umgesetzt:**
+  - **Backend:** Routen-Schutz in `src/routes/profile/+page.server.js` (`redirect(303, '/login')` ohne Session)
+  - **Frontend:** `src/routes/profile/+page.svelte` (CV-Upload via verstecktes File-Input, „Über mich"-Textarea, Erfahrung/Einsätze, Ausbildung ZHAW, Sprachen, Bewertungs-Balken); Persistenz in `src/lib/stores/profile.js` (localStorage `flexmatch_profil`)
+  - **Verknüpfung:** Hinweis auf der Bewerbungs-Erfolgsseite (`src/routes/jobs/[id]/apply/+page.svelte`), dass das Profil dem Arbeitgeber angezeigt wird
+- **Referenz:** Screenshot „Profil" Kap. 3.4.1; Figma-Prototyp (Profil-Screen)
+- **Aus Evaluation abgeleitet?:** Nein – Ergebnis der Leitidee-Analyse (Arbeitgeber-Sicht auf Bewerbende).
+
+---
+
+## 5. Projektorganisation
+
+### 5.1 Vorgehensmodell
+Das Projekt folgte dem im Unterricht vermittelten **Design-Sprint-Vorgehen** (Understand → Sketch → Decide → Prototype → Validate, vgl. Kap. 3). Die Phasen wurden iterativ durchlaufen: Nach der Validierung (Usability-Test 20.05.2026) flossen die Befunde direkt als Erweiterungen (Kap. 4) zurück in den Prototyp.
+
+### 5.2 Werkzeuge & Technologie-Stack
+| Bereich | Werkzeug |
+|---|---|
+| Code-Editor | Visual Studio Code |
+| Framework | SvelteKit 2 / Svelte 5 (Runes) |
+| UI | Bootstrap 5.3 |
+| Datenbank | MongoDB Atlas (`flexmatchDB`) |
+| Versionskontrolle | Git / GitHub (`ferrepa/Flexmatch`, public) |
+| Deployment | Netlify (`adapter-netlify`, Continuous Deployment ab `git push`) |
+| Design / Prototyp | Figma (interaktiver Klick-Prototyp) |
+| Diagramme | Mermaid (Information Architecture, ER-Modell, Flow) |
+
+### 5.3 Versionskontrolle & Issue-Management
+Der Quellcode wird mit **Git** versioniert und auf **GitHub** gehostet; Netlify deployt automatisch bei jedem `git push`. Aus den Befunden des Usability-Tests (Kap. 3.5) wurden **vier GitHub-Issues** angelegt und nach Umsetzung der jeweiligen Erweiterung wieder geschlossen – so ist der Weg vom Befund zur Lösung lückenlos nachvollziehbar:
+
+| Issue | Befund (Eval) | Umgesetzt in | Status |
+|---|---|---|---|
+| #1 Jobliste: Volltext-Suche fehlt | 3.5.1 | Erweiterung 4.3 | ✅ closed |
+| #2 Jobliste: Sortierung nach Lohn/Datum fehlt | 3.5.2 | Erweiterung 4.4 | ✅ closed |
+| #3 Bewerbung wirkt unverbindlich (nur lokal gespeichert) | 3.5.3 | Erweiterung 4.5 | ✅ closed |
+| #4 Bestätigung kommuniziert Speicherung nicht klar | 3.5.4 | Erweiterung 4.5 / 4.9 | ✅ closed |
+
+Issue-Tracker: https://github.com/ferrepa/Flexmatch/issues
+
+### 5.4 Meilensteine
+| Zeitraum | Meilenstein |
+|---|---|
+| Apr. 2026 | Understand & Define, Proto-Personas, Hand-Skizzen (Kap. 3.1–3.2) |
+| Anf. Mai 2026 | Decide & Prototyp-Aufbau (SvelteKit, Bootstrap, Routen, MongoDB) |
+| 20.05.2026 | Usability-Test (reziprok mit Marko Vukcevic & Valdrin Dalipi) |
+| 21.–31.05.2026 | Erweiterungen aus Evaluation: Volltext-Suche, Sortierung, server-seitige Persistenz |
+| 01.–06.06.2026 | Authentifizierung, Profil, Dokumentation, Deployment, Abgabe |
+
+*(Zeiträume als Richtwerte; an den effektiven Projektverlauf anpassen.)*
+
+### 5.5 Qualitätssicherung
+- `npm run build` als Build-Gate vor jedem Deploy (fehlerhafter Build = kein Push/Deploy)
+- Manuelle Durchklick-Tests der Kernflows nach jeder Erweiterung
+- **Graceful Fallback** (Kap. 4.6) sichert den Betrieb auch ohne DB-Verbindung
+- Konsistente Code-Struktur nach SvelteKit-Konventionen (Routen, `+page.server.js`, Stores, Komponenten)
+
+---
+
+## 6. KI-Deklaration
+
+Im Sinne der Transparenz wird der Einsatz von KI-Werkzeugen offengelegt. Als Unterstützung verwendet wurde **Claude (Anthropic)** in folgenden Bereichen:
+
+- **Code:** Generierung und Refactoring von SvelteKit-Komponenten, Server-Logik (Form-Actions, Auth, DB-Anbindung) sowie Unterstützung beim Debugging.
+- **Dokumentation:** Strukturierung und Ausformulierung dieser README entlang der vorgegebenen Kapitelstruktur.
+- **Design & Diagramme:** Unterstützung bei den Mermaid-Diagrammen und beim Figma-Prototyp.
+
+Konzept, Anforderungen, Designentscheide, die Durchführung des Usability-Tests sowie das Testen und die Verantwortung für das Endergebnis liegen beim Autor. Alle KI-generierten Inhalte wurden überprüft, angepasst und inhaltlich nachvollzogen. Es wurden keine vertraulichen oder personenbezogenen Daten Dritter an die KI übergeben.
+
+---
+
+## 7. Anhang
+
+### 7.1 Zugang & Links
+- **Live-Demo:** https://flexmatch-zhaw.netlify.app
+- **Demo-Login:** `demo@flexmatch.ch` / `demo1234`
+- **Repository:** https://github.com/ferrepa/Flexmatch
+- **Figma-Prototyp:** https://www.figma.com/design/ZlzqO8R94gHmY8DCFV4zNj
+
+### 7.2 Usability-Test – Testskript (Auszug)
+Aufgaben der Testpersonen (Thinking-Aloud):
+1. Registriere dich bzw. melde dich an.
+2. Finde einen Job in der Gastronomie in Zürich.
+3. Suche gezielt nach einem Stichwort (z. B. „Bar").
+4. Öffne einen Job und sende eine Bewerbung ab.
+5. Finde den Status deiner Bewerbung wieder.
+
+### 7.3 Cross-Reference (Reziprozität)
+Im selben Pflichttermin (20.05.2026) wurden die Projekte gegenseitig getestet:
+- **buildex** – Marko Vukcevic (vukcema1@students.zhaw.ch)
+- **StudyStreak** – Valdrin Dalipi (dalipval@students.zhaw.ch)
+
+### 7.4 Quellen & Hilfsmittel
+- Prototyping Cheat Sheet (Kursunterlagen)
+- Offizielle Dokumentation zu SvelteKit, Svelte, Bootstrap und MongoDB
+- Leitidee-Analyse bestehender Schweizer Vermittlungsplattformen (allgemeine Konzepte; kein Code und keine Inhalte übernommen)
