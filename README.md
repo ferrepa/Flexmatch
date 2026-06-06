@@ -492,6 +492,8 @@ Der Quellcode wird mit **Git** versioniert und auf **GitHub** gehostet; Netlify 
 
 Issue-Tracker: https://github.com/ferrepa/Flexmatch/issues
 
+**Commit-Praxis:** Sprechende Commit-Messages nach Konvention (`feat:`, `docs:`) mit Referenz auf die zugehörigen Issues (z. B. `#1 #2 #3 #4`), sodass jede Änderung dem auslösenden Befund zugeordnet werden kann.
+
 ### 5.4 Meilensteine
 | Zeitraum | Meilenstein |
 |---|---|
@@ -500,8 +502,6 @@ Issue-Tracker: https://github.com/ferrepa/Flexmatch/issues
 | 20.05.2026 | Usability-Test (reziprok mit Marko Vukcevic & Valdrin Dalipi) |
 | 21.–31.05.2026 | Erweiterungen aus Evaluation: Volltext-Suche, Sortierung, server-seitige Persistenz |
 | 01.–06.06.2026 | Authentifizierung, Profil, Dokumentation, Deployment, Abgabe |
-
-*(Zeiträume als Richtwerte; an den effektiven Projektverlauf anpassen.)*
 
 ### 5.5 Qualitätssicherung
 - `npm run build` als Build-Gate vor jedem Deploy (fehlerhafter Build = kein Push/Deploy)
@@ -513,13 +513,20 @@ Issue-Tracker: https://github.com/ferrepa/Flexmatch/issues
 
 ## 6. KI-Deklaration
 
-Im Sinne der Transparenz wird der Einsatz von KI-Werkzeugen offengelegt. Als Unterstützung verwendet wurde **Claude (Anthropic)** in folgenden Bereichen:
+Die folgende Deklaration ist verpflichtend und legt den Einsatz von KI im Projekt offen.
 
-- **Code:** Generierung und Refactoring von SvelteKit-Komponenten, Server-Logik (Form-Actions, Auth, DB-Anbindung) sowie Unterstützung beim Debugging.
-- **Dokumentation:** Strukturierung und Ausformulierung dieser README entlang der vorgegebenen Kapitelstruktur.
-- **Design & Diagramme:** Unterstützung bei den Mermaid-Diagrammen und beim Figma-Prototyp.
+### 6.1 KI-Tools
+- **Eingesetzte Tools:** Claude (Anthropic) als KI-Assistent. Im Editor wurde keine automatische KI-Codevervollständigung verwendet.
+- **Zweck & Umfang:** KI wurde **unterstützend** eingesetzt für (a) Codevorschläge und Refactoring von SvelteKit-Komponenten, Server-Logik (Form-Actions, Authentifizierung, MongoDB-Anbindung) sowie Debugging, (b) das Strukturieren und Ausformulieren dieser Dokumentation entlang der Vorlage und (c) Unterstützung bei den Mermaid-Diagrammen und dem Figma-Prototyp. Teile des Codes und der Texte entstanden damit teilweise mit KI-Unterstützung.
+- **Eigene Leistung (Abgrenzung):** Problemstellung, Lösungsidee, Informationsarchitektur und Designentscheide, Auswahl und Konfiguration des Technologie-Stacks, Durchführung und Auswertung des Usability-Tests, das manuelle Testen sowie alle fachlichen Entscheidungen wurden **eigenständig** erbracht. Sämtliche KI-Vorschläge wurden geprüft, angepasst, integriert und inhaltlich nachvollzogen; die Verantwortung für das Endergebnis liegt beim Autor.
 
-Konzept, Anforderungen, Designentscheide, die Durchführung des Usability-Tests sowie das Testen und die Verantwortung für das Endergebnis liegen beim Autor. Alle KI-generierten Inhalte wurden überprüft, angepasst und inhaltlich nachvollzogen. Es wurden keine vertraulichen oder personenbezogenen Daten Dritter an die KI übergeben.
+### 6.2 Prompt-Vorgehen
+Es wurde **iterativ und kontextbezogen** geprompt: Anforderungen, bestehender Code und das Prototyping-Cheat-Sheet wurden als Kontext bereitgestellt, die Ergebnisse anschliessend gelesen, getestet und bei Bedarf nachgebessert (Beispiel-Prompt: *„Erstelle eine geschützte SvelteKit-Route `/profile` mit Redirect auf `/login`, wenn keine Session vorhanden ist"*). Generierte Inhalte wurden auf Korrektheit und Eigenständigkeit geprüft; es wurden keine urheberrechtlich geschützten Inhalte übernommen und keine vertraulichen oder personenbezogenen Daten Dritter an die KI übergeben.
+
+### 6.3 Reflexion
+- **Nutzen:** Spürbare Zeitersparnis bei Boilerplate-Code, schnelleres Debugging und eine strukturierte, vollständige Dokumentation.
+- **Grenzen:** KI-Ausgaben sind nicht immer korrekt oder vollständig und müssen verifiziert werden – so wurde z. B. eine unvollständig gespeicherte Dokumentationsdatei beim Review erkannt und korrigiert.
+- **Risiken & Qualitätssicherung:** `npm run build` als Build-Gate, manuelle Durchklick-Tests der Kernflows, Code-Review jeder Änderung sowie das Nachvollziehen der Funktionsweise vor der Übernahme.
 
 ---
 
